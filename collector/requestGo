@@ -1,0 +1,177 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+func main() {
+	//resp, err := http.Get("http://10.1.104.15:18080/topom")
+	f, err := os.Open("/home/mygo/src/1.log")
+	if err != nil {
+		// handle error
+		panic(err)
+	}
+
+	//defer resp.Body.Close()
+	//body, err := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(f)
+	if err != nil {
+		// handle error
+		panic(err)
+	}
+	// fmt.Printf(string(body))
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(result["version"])
+	fmt.Println(result["compile"])
+	config := result["config"].(map[string]interface{})
+	fmt.Println(config["coordinator_name"])
+	fmt.Println(config["coordinator_addr"])
+	fmt.Println(config["admin_addr"])
+	fmt.Println(config["product_name"])
+	fmt.Println(config["sentinel_quorum"])
+	fmt.Println(config["sentinel_parallel_syncs"])
+	fmt.Println(config["sentinel_down_after"])
+	fmt.Println(config["sentinel_failover_timeout"])
+	fmt.Println(config["sentinel_notification_script"])
+	fmt.Println(config["sentinel_client_reconfig_script"])
+	model := result["model"].(map[string]interface{})
+	fmt.Println(model["token"])
+	fmt.Println(model["start_time"])
+	fmt.Println(model["admin_addr"])
+	fmt.Println(model["product_name"])
+	fmt.Println(model["pid"])
+	fmt.Println(model["pwd"])
+	fmt.Println(model["sys"])
+	stats := result["stats"].(map[string]interface{})
+	fmt.Println(stats["closed"])
+	//fmt.Println(len(stats["slots"]))
+	group := stats["group"].(map[string]interface{})
+	models := group["models"].([]interface{})
+	//var servers [][]struct{}
+	for _, val := range models {
+		valMap := val.(map[string]interface{})
+		for k, v := range valMap {
+			if k == "out_of_sync" {
+				fmt.Println(v)
+			}
+			if k == "servers" {
+				serverArray := v.([]interface{})
+				for _, arr := range serverArray {
+					dic := arr.(map[string]interface{})
+					fmt.Println(dic["server"])
+					//fmt.Println(dic["datacenter"])
+					//fmt.Println(dic["replica_group"])
+				}
+			}
+		}
+		//servers.append(servers,val)
+	}
+	serverStats := group["stats"].(map[string]interface{})
+	for key, val := range serverStats {
+		fmt.Printf("redis host is %s", key)
+		redisS := val.(map[string]interface{})
+		redisStats := redisS["stats"].(map[string]interface{})
+		for k, v := range redisStats {
+			switch k {
+			case "uptime_in_seconds":
+				fmt.Printf("uptime_in_seconds is %s", v)
+			case "used_memory_rss_human":
+				fmt.Printf("used_memory_rss_human is %s", v)
+			case "blocked_clients":
+				fmt.Printf("blocked_clients is %s", v)
+			case "client_biggest_input_buf":
+				fmt.Printf("client_biggest_input_buf is %s", v)
+			case "client_longest_output_list":
+				fmt.Printf("client_longest_output_list is %s", v)
+			case "connected_clients":
+				fmt.Printf("connected_clients is %s", v)
+			}
+		}
+
+	}
+	proxyArray := stats["proxy"].(map[string]interface{})
+	for k, v := range proxyArray {
+		if k == "model" {
+			vArray := v.([]interface{})
+			for _, arr := range vArray {
+				arrDict := arr.(map[string]interface{})
+				for aK, aV := range arrDict {
+					if aK == "proxy_addr" {
+						fmt.Println(aV)
+					}
+					if aK == "start_time" {
+						fmt.Println(aV)
+					}
+				}
+			}
+		}
+		if k == "stats" {
+			vDict := v.(map[string]interface{})
+			for _, v1 := range vDict {
+				v1Dict := v1.(map[string]interface{})
+				for k2, v2 := range v1Dict {
+					if k2 == "stats" {
+						v2Dict := v2.(map[string]interface{})
+						for k3, v3 := range v2Dict {
+							if k3 == "online" {
+								fmt.Println(v3)
+							}
+							if k3 == "ops" {
+								v3Dict := v3.(map[string]interface{})
+								for k4, v4 := range v3Dict {
+									if k4 == "total" {
+										fmt.Println(v4)
+									}
+									if k4 == "fails" {
+										fmt.Println(v4)
+									}
+									if k4 == "qps" {
+										fmt.Println(v4)
+									}
+								}
+							}
+							if k3 == "sessions" {
+								v3Dict := v3.(map[string]interface{})
+								for k4, v4 := range v3Dict {
+									if k4 == "total" {
+										fmt.Println(v4)
+									}
+									if k4 == "alive" {
+										fmt.Println(v4)
+									}
+								}
+							}
+							if k3 == "rusage" {
+								v3Dict := v3.(map[string]interface{})
+								for k4, v4 := range v3Dict {
+									if k4 == "cpu" {
+										fmt.Println(v4)
+									}
+									if k4 == "mem" {
+										fmt.Println(v4)
+									}
+								}
+							}
+						}
+					}
+					if k2 == "unixtime" {
+						fmt.Println(v2)
+					}
+				}
+			}
+		}
+	}
+	slot_action_array := stats["slot_action"].(map[string]interface{})
+	for k, v := range slot_action_array {
+		if k == "interval" {
+			fmt.Println(v)
+		}
+	}
+}
