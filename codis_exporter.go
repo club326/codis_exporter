@@ -24,7 +24,7 @@ var (
 	versionF       = flag.Bool("version", false, "Print version information and exit.")
 	listenAddressF = flag.String("web.listen-address", ":9403", "Address to listen on for web interface and telemetry")
 	metricsPathF   = flag.String("web.metrics-path", "/metrics", "Path under which to expose metrics.")
-	codisUrlF      = flag.String("codis.url", "", "the url which point to codis dashboard, format: 10.1.104.15:18080/topom")
+	codisUrlF      = flag.String("codis.url", "", "the url which point to codis dashboard, format: 127.0.0.1:18080/topom")
 	namespace      = flag.String("namespace", "codis", "Namespace for metrics")
 	separator      = flag.String("separator", ",", "separator used to split codis.url into serveal elements")
 	authFileF      = flag.String("web.auth-file", "", "Path to YAML file with server_user, server_password options for http basic auth (overrides HTTP_AUTH env var).")
